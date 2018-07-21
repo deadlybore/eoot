@@ -66,8 +66,9 @@ Vagrant.configure("2") do |config|
   # documentation for more information about their specific syntax and use.
   config.vm.provision "shell", inline: <<-SHELL
     apt-get update
-    apt-get install -y dbhelper dkms kernel-headers
-    apt-get install -y bash-completion rsync
-    apt-get install -y ansible python python-jinja2
+    apt-get install -y debhelper dkms linux-headers-amd64
+    apt-get install -y bash-completion
+    apt-get install -y ansible python
+    ansible-playbook /vagrant/build.yml
   SHELL
 end

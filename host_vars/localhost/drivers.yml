@@ -3,3 +3,4 @@ drivers:
   i40e:
     version: 2.4.10
     url: https://downloadmirror.intel.com/24411/eng/i40e-2.4.10.tar.gz
+    extra_dkms_conf: "BUILT_MODULE_LOCATION=src/"

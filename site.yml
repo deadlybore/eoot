@@ -16,6 +16,7 @@
       template:
         src: dkms.conf.j2
         dest: "/usr/src/{{ item.key }}-{{ item.value.version }}/dkms.conf"
+        force: no
       with_dict: "{{ drivers }}"
 
 # add -k option to dkms https://wiki.archlinux.org/index.php/Dynamic_Kernel_Module_Support#DKMS_package_creation

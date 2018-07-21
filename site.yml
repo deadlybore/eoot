@@ -19,18 +19,25 @@
         force: no
       with_dict: "{{ drivers }}"
 
+    - name: install wanted kernel
+      apt:
+        name: "{{ item }}"
+      with_items:
+        - "linux-image-{{ kernel_version }}-{{ kernel_arch }}"
+        - "linux-headers-{{ kernel_version }}-{{ kernel_arch }}"
+
 # add -k option to dkms https://wiki.archlinux.org/index.php/Dynamic_Kernel_Module_Support#DKMS_package_creation
 
     - name: dkms add
-      shell: "dkms add -m {{ item.key }} -v {{ item.value.version }}"
+      shell: "dkms add -m {{ item.key }} -v {{ item.value.version }} -k {{ kernel_version }}-{{ kernel_arch }}"
       args:
         creates: "/var/lib/dkms/{{ item.key }}/{{ item.value.version }}"
       with_dict: "{{ drivers }}"
 
     - name: dkms build
-      shell: "dkms build -m {{ item.key }} -v {{ item.value.version }}"
+      shell: "dkms build -m {{ item.key }} -v {{ item.value.version }} -k {{ kernel_version }}-{{ kernel_arch }}"
       with_dict: "{{ drivers }}"
 
     - name: dkms mkbmdeb
-      shell: "dkms mkbmdeb -m {{ item.key }} -v {{ item.value.version }}"
+      shell: "dkms mkbmdeb -m {{ item.key }} -v {{ item.value.version }} -k {{ kernel_version }}-{{ kernel_arch }}"
       with_dict: "{{ drivers }}"

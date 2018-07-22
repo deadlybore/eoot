@@ -15,4 +15,13 @@ drivers:
   drivers_name:
     url: where to download the driver
     version: the version of the driver
+    custom_dkms_conf: |
+      put
+      custom
+      conf
+      here
+      and dkms.conf.j2
+      will
+      be
+      ignored
 ```

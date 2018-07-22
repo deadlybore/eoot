@@ -2,7 +2,7 @@
 
 # unarchive
 # get_url
-- hosts: localhost
+- hosts: all
   tasks:
     - name: install necessary resources and wanted kernel
       apt:

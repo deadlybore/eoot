@@ -1,0 +1,34 @@
+---
+
+- name: "download archive for megaraid_sas dell {{ version }}"
+  unarchive:
+    src: "{{ url }}"
+    dest: /tmp
+    copy: no
+    creates: "/tmp/megaraid_sas-{{ version }}-1.src.rpm"
+
+- name: install alien
+  apt:
+    name: alien
+
+- name: extract rpm
+  shell: "alien --to-tgz megaraid_sas-{{ version }}-1.src.rpm"
+  args:
+    chdir: /tmp
+    creates: /tmp/megaraid_sas-07.703.06.00.tgz
+
+- name: extract tgz
+  unarchive:
+    src: /tmp/megaraid_sas-07.703.06.00.tgz
+    dest: /tmp
+
+- name: extract source in kernel tree
+  unarchive:
+    src: "/tmp/megaraid_sas-{{ version }}.tar.bz2"
+    dest: '/usr/src'
+    creates: "/usr/src/megaraid_sas-{{ version }}"
+
+- lineinfile:
+    path: "/usr/src/megaraid_sas-{{ version }}/dkms.conf"
+    regexp: '^PACKAGE_VERSION'
+    line: "PACKAGE_VERSION={{ version }}"

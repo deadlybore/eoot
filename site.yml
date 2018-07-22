@@ -18,49 +18,52 @@
 
     - name: download drivers
       unarchive:
-        src: "{{ item.value.url }}"
+        src: "{{ item.url }}"
         dest: /usr/src
         copy: no
-        creates: "/usr/src/{{ item.key }}-{{ item.value.version }}"
-      with_dict: "{{ drivers }}"
-      when: item.value.custom_retrieval is not defined
+        creates: "/usr/src/{{ item.name }}-{{ item.version }}"
+      with_items: "{{ drivers }}"
+      when: item.custom_retrieval is not defined
 
     - name: custom retrieval of drivers
-      include: "custom_retrieval/{{ item.value.custom_retrieval }}"
-      with_dict: "{{ drivers }}"
-      when: item.value.custom_retrieval is defined
+      include: "custom_retrieval/{{ item.custom_retrieval }}
+        name={{ item.name}}
+        url={{ item.url }}
+        version={{ item.version }}"
+      with_items: "{{ drivers }}"
+      when: item.custom_retrieval is defined
 
     - name: generate dkms.conf
       template:
         src: dkms.conf.j2
-        dest: "/usr/src/{{ item.key }}-{{ item.value.version }}/dkms.conf"
+        dest: "/usr/src/{{ item.name }}-{{ item.version }}/dkms.conf"
         force: no
-      with_dict: "{{ drivers }}"
+      with_items: "{{ drivers }}"
 
 # add -k option to dkms https://wiki.archlinux.org/index.php/Dynamic_Kernel_Module_Support#DKMS_package_creation
 
     - name: dkms add
-      shell: "dkms add -m {{ item.key }} -v {{ item.value.version }} -k {{ kernel_version }}-{{ kernel_arch }}"
+      shell: "dkms add -m {{ item.name }} -v {{ item.version }} -k {{ kernel_version }}-{{ kernel_arch }}"
       args:
-        creates: "/var/lib/dkms/{{ item.key }}/{{ item.value.version }}"
-      with_dict: "{{ drivers }}"
+        creates: "/var/lib/dkms/{{ item.name }}/{{ item.version }}"
+      with_items: "{{ drivers }}"
 
     - name: dkms build
-      shell: "dkms build -m {{ item.key }} -v {{ item.value.version }} -k {{ kernel_version }}-{{ kernel_arch }}"
-      with_dict: "{{ drivers }}"
+      shell: "dkms build -m {{ item.name }} -v {{ item.version }} -k {{ kernel_version }}-{{ kernel_arch }}"
+      with_items: "{{ drivers }}"
 
       # Not working for the moment due to a bug in dkms
     - name: dkms mkdeb
-      shell: "dkms mkdeb -m {{ item.key }} -v {{ item.value.version }} -k {{ kernel_version }}-{{ kernel_arch }}"
-      with_dict: "{{ drivers }}"
+      shell: "dkms mkdeb -m {{ item.name }} -v {{ item.version }} -k {{ kernel_version }}-{{ kernel_arch }}"
+      with_items: "{{ drivers }}"
 
     - name: dkms mkbmdeb
-      shell: "dkms mkbmdeb -m {{ item.key }} -v {{ item.value.version }} -k {{ kernel_version }}-{{ kernel_arch }}"
-      with_dict: "{{ drivers }}"
+      shell: "dkms mkbmdeb -m {{ item.name }} -v {{ item.version }} -k {{ kernel_version }}-{{ kernel_arch }}"
+      with_items: "{{ drivers }}"
 
     - name: retrieve generated bmdeb
       copy:
         remote_src: true
-        src: "/var/lib/dkms/{{ item.key }}/{{ item.value.version }}/bmdeb/{{ item.key | replace('_', '-') }}-modules-{{ kernel_version }}-{{ kernel_arch }}_{{ item.value.version }}_{{ kernel_arch }}.deb"
+        src: "/var/lib/dkms/{{ item.name }}/{{ item.version }}/bmdeb/{{ item.name | replace('_', '-') }}-modules-{{ kernel_version }}-{{ kernel_arch }}_{{ item.version }}_{{ kernel_arch }}.deb"
         dest: /vagrant
-      with_dict: "{{ drivers }}"
+      with_items: "{{ drivers }}"

@@ -1,9 +1,9 @@
-{% if item.value.custom_dkms_conf is defined %}
-{{ item.value.custom_dkms_conf }}
+{% if item.custom_dkms_conf is defined %}
+{{ item.custom_dkms_conf }}
 {% else %}
 
-{% if item.value.extra_dkms_conf is defined %}
-{{ item.value.extra_dkms_conf }}
+{% if item.extra_dkms_conf is defined %}
+{{ item.extra_dkms_conf }}
 {% else %}
 BUILT_MODULE_LOCATION=.
 {% endif %}
@@ -11,10 +11,10 @@ BUILT_MODULE_LOCATION=.
 MAKE="BUILD_KERNEL=${kernelver} make -C ${BUILT_MODULE_LOCATION} KERNELDIR=/lib/modules/${kernelver}/build"
 CLEAN="make -C src/ clean"
 
-BUILT_MODULE_NAME={{ item.key }}
+BUILT_MODULE_NAME={{ item.name }}
 DEST_MODULE_LOCATION="/updates"
-PACKAGE_NAME={{ item.key }}
-PACKAGE_VERSION={{ item.value.version }}
+PACKAGE_NAME={{ item.name }}
+PACKAGE_VERSION={{ item.version }}
 
 REMAKE_INITRD=yes
 

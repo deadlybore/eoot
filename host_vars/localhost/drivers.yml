@@ -1,10 +1,14 @@
 ---
 drivers:
-  i40e:
+  - name: i40e
     version: 2.4.10
     url: https://downloadmirror.intel.com/24411/eng/i40e-2.4.10.tar.gz
     extra_dkms_conf: "BUILT_MODULE_LOCATION=src/"
-  megaraid_sas:
-    version: 07.705.02.00
-    url: https://docs.broadcom.com/docs-and-downloads/raid-controllers/raid-controllers-common-files/MR_LINUX_DRIVER_7.5-07.705.02.00-1.tgz
-    custom_retrieval: megaraid_sas.yml
+  - name: megaraid_sas
+    version: 07.706.03.00
+    url: https://docs.broadcom.com/docs-and-downloads/raid-controllers/raid-controllers-common-files/MR_LINUX_DRIVER_7.6-07.706.03.00-1.tgz
+    custom_retrieval: megaraid_sas_broadcom.yml
+  - name: megaraid_sas
+    version: 07.703.06.00
+    url: https://downloads.dell.com/FOLDER04716643M/1/UnifiedDriver_7.703.06.00_RHEL7.tar.gz
+    custom_retrieval: megaraid_sas_dell.yml

@@ -1,0 +1,19 @@
+---
+
+- name: "download archive for megaraid_sas broadcom {{ version }}"
+  unarchive:
+    src: "{{ url }}"
+    dest: /tmp
+    copy: no
+    creates: "/tmp/megaraid_sas-{{ version }}-src.tar.gz"
+
+- name: extract source in kernel tree
+  unarchive:
+    src: "/tmp/megaraid_sas-{{ version }}-src.tar.gz"
+    dest: '/usr/src'
+    creates: "/usr/src/megaraid_sas-{{ version }}"
+
+- lineinfile:
+    path: "/usr/src/megaraid_sas-{{ version }}/dkms.conf"
+    regexp: '^PACKAGE_VERSION'
+    line: "PACKAGE_VERSION={{ version }}"

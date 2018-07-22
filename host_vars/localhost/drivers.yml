@@ -4,3 +4,7 @@ drivers:
     version: 2.4.10
     url: https://downloadmirror.intel.com/24411/eng/i40e-2.4.10.tar.gz
     extra_dkms_conf: "BUILT_MODULE_LOCATION=src/"
+  megaraid_sas:
+    version: 07.705.02.00
+    url: https://docs.broadcom.com/docs-and-downloads/raid-controllers/raid-controllers-common-files/MR_LINUX_DRIVER_7.5-07.705.02.00-1.tgz
+    custom_retrieval: megaraid_sas.yml

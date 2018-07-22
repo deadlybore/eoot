@@ -24,4 +24,6 @@ drivers:
       will
       be
       ignored
+    custom_retrieval: driver.yml
 ```
+For `custom_retrieval` add the tasks to execute in a 'role' in `custom_retrieval`. See `megaraid_sas` for an example.

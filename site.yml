@@ -23,6 +23,12 @@
         copy: no
         creates: "/usr/src/{{ item.key }}-{{ item.value.version }}"
       with_dict: "{{ drivers }}"
+      when: item.value.custom_retrieval is not defined
+
+    - name: custom retrieval of drivers
+      include: "custom_retrieval/{{ item.value.custom_retrieval }}"
+      with_dict: "{{ drivers }}"
+      when: item.value.custom_retrieval is defined
 
     - name: generate dkms.conf
       template:
@@ -55,6 +61,6 @@
     - name: retrieve generated bmdeb
       copy:
         remote_src: true
-        src: "/var/lib/dkms/{{ item.key }}/{{ item.value.version }}/bmdeb/{{ item.key }}-modules-{{ kernel_version }}-{{ kernel_arch }}_{{ item.value.version }}_{{ kernel_arch }}.deb"
+        src: "/var/lib/dkms/{{ item.key }}/{{ item.value.version }}/bmdeb/{{ item.key | replace('_', '-') }}-modules-{{ kernel_version }}-{{ kernel_arch }}_{{ item.value.version }}_{{ kernel_arch }}.deb"
         dest: /vagrant
       with_dict: "{{ drivers }}"

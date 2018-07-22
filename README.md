@@ -12,7 +12,7 @@ Simply launch `vagrant up` and the drivers specified in
 Add the new driver in `host_vars/localhost/drivers.yml` like this :
 ```yaml
 drivers:
-  drivers_name:
+  - name: driver_name
     url: where to download the driver
     version: the version of the driver
     custom_dkms_conf: |

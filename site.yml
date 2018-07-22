@@ -4,6 +4,17 @@
 # get_url
 - hosts: localhost
   tasks:
+    - name: install necessary resources and wanted kernel
+      apt:
+        name: "{{ item }}"
+        update_cache: yes
+      with_items:
+        - debhelper
+        - dkms
+        - "linux-image-{{ kernel_version }}-{{ kernel_arch }}"
+        - "linux-headers-{{ kernel_version }}-{{ kernel_arch }}"
+        - bash-completion
+
     - name: download drivers
       unarchive:
         src: "{{ item.value.url }}"
@@ -18,13 +29,6 @@
         dest: "/usr/src/{{ item.key }}-{{ item.value.version }}/dkms.conf"
         force: no
       with_dict: "{{ drivers }}"
-
-    - name: install wanted kernel
-      apt:
-        name: "{{ item }}"
-      with_items:
-        - "linux-image-{{ kernel_version }}-{{ kernel_arch }}"
-        - "linux-headers-{{ kernel_version }}-{{ kernel_arch }}"
 
 # add -k option to dkms https://wiki.archlinux.org/index.php/Dynamic_Kernel_Module_Support#DKMS_package_creation
 

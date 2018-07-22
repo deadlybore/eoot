@@ -38,6 +38,18 @@
       shell: "dkms build -m {{ item.key }} -v {{ item.value.version }} -k {{ kernel_version }}-{{ kernel_arch }}"
       with_dict: "{{ drivers }}"
 
+      # Not working for the moment due to a bug in dkms
+    - name: dkms mkdeb
+      shell: "dkms mkdeb -m {{ item.key }} -v {{ item.value.version }} -k {{ kernel_version }}-{{ kernel_arch }}"
+      with_dict: "{{ drivers }}"
+
     - name: dkms mkbmdeb
       shell: "dkms mkbmdeb -m {{ item.key }} -v {{ item.value.version }} -k {{ kernel_version }}-{{ kernel_arch }}"
+      with_dict: "{{ drivers }}"
+
+    - name: retrieve generated bmdeb
+      copy:
+        remote_src: true
+        src: "/var/lib/dkms/{{ item.key }}/{{ item.value.version }}/bmdeb/{{ item.key }}-modules-{{ kernel_version }}-{{ kernel_arch }}_{{ item.value.version }}_{{ kernel_arch }}.deb"
+        dest: /vagrant
       with_dict: "{{ drivers }}"

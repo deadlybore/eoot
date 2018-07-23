@@ -1,5 +1,7 @@
 # EOOT: Easy Out-Of-Tree
-This tools aim to ease the generation of Out-Of-Tree drivers
+This tool aim to ease the generation of Out-Of-Tree drivers packages.
+It retrieves the drivers, compiles it and generates a debian binary package with
+dkms.
 
 # Requirements
 * vagrant-sshfs
@@ -15,7 +17,7 @@ drivers:
   - name: driver_name
     url: where to download the driver
     version: the version of the driver
-    custom_dkms_conf: |
+    custom_dkms_conf: | (optional)
       put
       custom
       conf
@@ -24,6 +26,7 @@ drivers:
       will
       be
       ignored
-    custom_retrieval: driver.yml
+    custom_retrieval: driver.yml (optional)
 ```
-For `custom_retrieval` add the tasks to execute in a 'role' in `custom_retrieval`. See `megaraid_sas` for an example.
+For `custom_retrieval` add the tasks to execute in a 'role' in `custom_retrieval`.
+See `megaraid_sas` for an example.

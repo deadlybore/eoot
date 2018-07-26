@@ -1,7 +1,5 @@
 ---
 
-# unarchive
-# get_url
 - hosts: all
   tasks:
     - name: install necessary resources
@@ -70,15 +68,28 @@
 
     - name: dkms mkbmdeb
       shell: "dkms mkbmdeb -m {{ item[0].name }} -v {{ item[0].version }} -k {{ item[1].version }}-{{ item[1].arch }}"
+      args:
+        creates: "/var/lib/dkms/{{ item[0].name }}/{{ item[0].version }}/bmdeb/{{ item[0].name | replace('_', '-') }}-modules-{{ item[1].version }}-{{ item[1].arch }}_{{ item[0].version }}_{{ item[1].arch }}.deb"
       with_nested:
         - "{{ drivers }}"
         - "{{ kernels }}"
+
+    - name: make sure output directories exists
+      file:
+        path: "{{ output_directory }}/pkgs/{{ ansible_distribution }}/{{ ansible_distribution_release }}"
+        state: directory
+        recurse: true
 
     - name: retrieve generated bmdeb
       copy:
         remote_src: true
         src: "/var/lib/dkms/{{ item[0].name }}/{{ item[0].version }}/bmdeb/{{ item[0].name | replace('_', '-') }}-modules-{{ item[1].version }}-{{ item[1].arch }}_{{ item[0].version }}_{{ item[1].arch }}.deb"
-        dest: /vagrant
+        dest: "{{ output_directory }}/pkgs/{{ ansible_distribution }}/{{ ansible_distribution_release }}"
       with_nested:
         - "{{ drivers }}"
         - "{{ kernels }}"
+
+    - name: generate Packages.gz
+      shell: "dpkg-scanpackages -m . | gzip -f9 > Packages.gz"
+      args:
+        chdir: "{{ output_directory }}/pkgs/{{ ansible_distribution }}/{{ ansible_distribution_release }}"

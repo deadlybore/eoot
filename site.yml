@@ -4,17 +4,22 @@
 # get_url
 - hosts: all
   tasks:
-    - name: install necessary resources and wanted kernel
+    - name: install necessary resources
       apt:
         name: "{{ item }}"
         update_cache: yes
       with_items:
         - debhelper
         - dkms
-        - "linux-image-{{ kernel_version }}-{{ kernel_arch }}"
-        - "linux-headers-{{ kernel_version }}-{{ kernel_arch }}"
         - bash-completion
         - vim
+
+    - name: install wanted kernels
+      apt:
+        name: "{{ item[0] }}-{{ item[1].version }}-{{ item[1].arch }}"
+      with_nested:
+        - [ 'linux-image', 'linux-headers' ]
+        - "{{ kernels }}"
 
     - name: download drivers
       unarchive:
@@ -43,27 +48,37 @@
 # add -k option to dkms https://wiki.archlinux.org/index.php/Dynamic_Kernel_Module_Support#DKMS_package_creation
 
     - name: dkms add
-      shell: "dkms add -m {{ item.name }} -v {{ item.version }} -k {{ kernel_version }}-{{ kernel_arch }}"
+      shell: "dkms add -m {{ item[0].name }} -v {{ item[0].version }} -k {{ item[1].version }}-{{ item[1].arch }}"
       args:
-        creates: "/var/lib/dkms/{{ item.name }}/{{ item.version }}"
-      with_items: "{{ drivers }}"
+        creates: "/var/lib/dkms/{{ item[0].name }}/{{ item[0].version }}"
+      with_nested:
+        - "{{ drivers }}"
+        - "{{ kernels }}"
 
     - name: dkms build
-      shell: "dkms build -m {{ item.name }} -v {{ item.version }} -k {{ kernel_version }}-{{ kernel_arch }}"
-      with_items: "{{ drivers }}"
+      shell: "dkms build -m {{ item[0].name }} -v {{ item[0].version }} -k {{ item[1].version }}-{{ item[1].arch }}"
+      with_nested:
+        - "{{ drivers }}"
+        - "{{ kernels }}"
 
       # Not working for the moment due to a bug in dkms
     - name: dkms mkdeb
-      shell: "dkms mkdeb -m {{ item.name }} -v {{ item.version }} -k {{ kernel_version }}-{{ kernel_arch }}"
-      with_items: "{{ drivers }}"
+      shell: "dkms mkdeb -m {{ item[0].name }} -v {{ item[0].version }} -k {{ item[1].version }}-{{ item[1].arch }}"
+      with_nested:
+        - "{{ drivers }}"
+        - "{{ kernels }}"
 
     - name: dkms mkbmdeb
-      shell: "dkms mkbmdeb -m {{ item.name }} -v {{ item.version }} -k {{ kernel_version }}-{{ kernel_arch }}"
-      with_items: "{{ drivers }}"
+      shell: "dkms mkbmdeb -m {{ item[0].name }} -v {{ item[0].version }} -k {{ item[1].version }}-{{ item[1].arch }}"
+      with_nested:
+        - "{{ drivers }}"
+        - "{{ kernels }}"
 
     - name: retrieve generated bmdeb
       copy:
         remote_src: true
-        src: "/var/lib/dkms/{{ item.name }}/{{ item.version }}/bmdeb/{{ item.name | replace('_', '-') }}-modules-{{ kernel_version }}-{{ kernel_arch }}_{{ item.version }}_{{ kernel_arch }}.deb"
+        src: "/var/lib/dkms/{{ item[0].name }}/{{ item[0].version }}/bmdeb/{{ item[0].name | replace('_', '-') }}-modules-{{ item[1].version }}-{{ item[1].arch }}_{{ item[0].version }}_{{ item[1].arch }}.deb"
         dest: /vagrant
-      with_items: "{{ drivers }}"
+      with_nested:
+        - "{{ drivers }}"
+        - "{{ kernels }}"

@@ -1,2 +1,7 @@
-kernel_version: 4.9.0-7
-kernel_arch: amd64
+kernels:
+  - version: 4.9.0-5
+    arch: amd64
+  - version: 4.9.0-6
+    arch: amd64
+  - version: 4.9.0-7
+    arch: amd64

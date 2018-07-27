@@ -43,8 +43,6 @@
         force: no
       with_items: "{{ drivers }}"
 
-# add -k option to dkms https://wiki.archlinux.org/index.php/Dynamic_Kernel_Module_Support#DKMS_package_creation
-
     - name: dkms add
       shell: "dkms add -m {{ item[0].name }} -v {{ item[0].version }} -k {{ item[1].version }}-{{ item[1].arch }}"
       args:
@@ -93,3 +91,11 @@
       shell: "dpkg-scanpackages -m . | gzip -f9 > Packages.gz"
       args:
         chdir: "{{ output_directory }}/pkgs/{{ ansible_distribution }}/{{ ansible_distribution_release }}"
+
+    - name: generate d-i for preseed
+      template:
+        src: d-i.j2
+        dest: "{{ output_directory }}/d-i/{{ ansible_distribution }}/{{ ansible_distribution_release }}/{{ item[0].name }}-{{ item[1].version }}-{{ item[1].arch }}"
+      with_nested:
+        - "{{ drivers | get_more_recent_versions }}"
+        - "{{ kernels }}"

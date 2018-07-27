@@ -1,0 +1,2 @@
+wget {{ url_repository }}/pkgs/{{ ansible_distribution }}/{{ ansible_distribution_release }}/{{ item[0].name | replace('_', '-') }}-{{ item[1].version }}-{{ item[1].arch }}_{{ item[0].version }}_{{ item[1].arch }}.deb && \
+udpkg -i {{ item[0].name | replace('_', '-') }}-{{ item[1].version }}-{{ item[1].arch }}_{{ item[0].version }}_{{ item[1].arch }}.deb

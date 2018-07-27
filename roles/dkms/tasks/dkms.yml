@@ -1,0 +1,37 @@
+---
+
+- name: generate dkms.conf
+  template:
+    src: dkms.conf.j2
+    dest: "/usr/src/{{ item.name }}-{{ item.version }}/dkms.conf"
+    force: no
+  with_items: "{{ drivers }}"
+
+- name: dkms add
+  shell: "dkms add -m {{ item[0].name }} -v {{ item[0].version }} -k {{ item[1].version }}-{{ item[1].arch }}"
+  args:
+    creates: "/var/lib/dkms/{{ item[0].name }}/{{ item[0].version }}"
+  with_nested:
+    - "{{ drivers }}"
+    - "{{ kernels }}"
+
+- name: dkms build
+  shell: "dkms build -m {{ item[0].name }} -v {{ item[0].version }} -k {{ item[1].version }}-{{ item[1].arch }}"
+  with_nested:
+    - "{{ drivers }}"
+    - "{{ kernels }}"
+
+  # Not working for the moment due to a bug in dkms
+- name: dkms mkdeb
+  shell: "dkms mkdeb -m {{ item[0].name }} -v {{ item[0].version }} -k {{ item[1].version }}-{{ item[1].arch }}"
+  with_nested:
+    - "{{ drivers }}"
+    - "{{ kernels }}"
+
+- name: dkms mkbmdeb
+  shell: "dkms mkbmdeb -m {{ item[0].name }} -v {{ item[0].version }} -k {{ item[1].version }}-{{ item[1].arch }}"
+  args:
+    creates: "/var/lib/dkms/{{ item[0].name }}/{{ item[0].version }}/bmdeb/{{ item[0].name | replace('_', '-') }}-modules-{{ item[1].version }}-{{ item[1].arch }}_{{ item[0].version }}_{{ item[1].arch }}.deb"
+  with_nested:
+    - "{{ drivers }}"
+    - "{{ kernels }}"

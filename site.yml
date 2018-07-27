@@ -1,104 +1,15 @@
 ---
 
 - hosts: all
-  tasks:
+  pre_tasks:
     - name: include configuration for current OS
       include_vars: "{{ ansible_distribution }}/{{ ansible_distribution_release }}/kernels.yml"
 
-    - name: install necessary resources
-      apt:
-        name: "{{ item }}"
-        update_cache: yes
-      with_items:
-        - debhelper
-        - dkms
-        - bash-completion
-        - vim
+    - include_role:
+        name: backports
+      when: use_backports is defined and use_backports == True
 
-    - name: install wanted kernels
-      apt:
-        name: "{{ item[0] }}-{{ item[1].version }}-{{ item[1].arch }}"
-      with_nested:
-        - [ 'linux-image', 'linux-headers' ]
-        - "{{ kernels }}"
-
-    - name: download drivers
-      unarchive:
-        src: "{{ item.url }}"
-        dest: /usr/src
-        copy: no
-        creates: "/usr/src/{{ item.name }}-{{ item.version }}"
-      with_items: "{{ drivers }}"
-      when: item.custom_retrieval is not defined
-
-    - name: custom retrieval of drivers
-      include: "custom_retrieval/{{ item.custom_retrieval }}
-        name={{ item.name}}
-        url={{ item.url }}
-        version={{ item.version }}"
-      with_items: "{{ drivers }}"
-      when: item.custom_retrieval is defined
-
-    - name: generate dkms.conf
-      template:
-        src: dkms.conf.j2
-        dest: "/usr/src/{{ item.name }}-{{ item.version }}/dkms.conf"
-        force: no
-      with_items: "{{ drivers }}"
-
-    - name: dkms add
-      shell: "dkms add -m {{ item[0].name }} -v {{ item[0].version }} -k {{ item[1].version }}-{{ item[1].arch }}"
-      args:
-        creates: "/var/lib/dkms/{{ item[0].name }}/{{ item[0].version }}"
-      with_nested:
-        - "{{ drivers }}"
-        - "{{ kernels }}"
-
-    - name: dkms build
-      shell: "dkms build -m {{ item[0].name }} -v {{ item[0].version }} -k {{ item[1].version }}-{{ item[1].arch }}"
-      with_nested:
-        - "{{ drivers }}"
-        - "{{ kernels }}"
-
-      # Not working for the moment due to a bug in dkms
-    - name: dkms mkdeb
-      shell: "dkms mkdeb -m {{ item[0].name }} -v {{ item[0].version }} -k {{ item[1].version }}-{{ item[1].arch }}"
-      with_nested:
-        - "{{ drivers }}"
-        - "{{ kernels }}"
-
-    - name: dkms mkbmdeb
-      shell: "dkms mkbmdeb -m {{ item[0].name }} -v {{ item[0].version }} -k {{ item[1].version }}-{{ item[1].arch }}"
-      args:
-        creates: "/var/lib/dkms/{{ item[0].name }}/{{ item[0].version }}/bmdeb/{{ item[0].name | replace('_', '-') }}-modules-{{ item[1].version }}-{{ item[1].arch }}_{{ item[0].version }}_{{ item[1].arch }}.deb"
-      with_nested:
-        - "{{ drivers }}"
-        - "{{ kernels }}"
-
-    - name: make sure output directories exists
-      file:
-        path: "{{ output_directory }}/pkgs/{{ ansible_distribution }}/{{ ansible_distribution_release }}"
-        state: directory
-        recurse: true
-
-    - name: retrieve generated bmdeb
-      copy:
-        remote_src: true
-        src: "/var/lib/dkms/{{ item[0].name }}/{{ item[0].version }}/bmdeb/{{ item[0].name | replace('_', '-') }}-modules-{{ item[1].version }}-{{ item[1].arch }}_{{ item[0].version }}_{{ item[1].arch }}.deb"
-        dest: "{{ output_directory }}/pkgs/{{ ansible_distribution }}/{{ ansible_distribution_release }}"
-      with_nested:
-        - "{{ drivers }}"
-        - "{{ kernels }}"
-
-    - name: generate Packages.gz
-      shell: "dpkg-scanpackages -m . | gzip -f9 > Packages.gz"
-      args:
-        chdir: "{{ output_directory }}/pkgs/{{ ansible_distribution }}/{{ ansible_distribution_release }}"
-
-    - name: generate d-i for preseed
-      template:
-        src: d-i.j2
-        dest: "{{ output_directory }}/d-i/{{ ansible_distribution }}/{{ ansible_distribution_release }}/{{ item[0].name }}-{{ item[1].version }}-{{ item[1].arch }}"
-      with_nested:
-        - "{{ drivers | get_more_recent_versions }}"
-        - "{{ kernels }}"
+  roles:
+    - setup
+    - dkms
+    - retrieval

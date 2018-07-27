@@ -1,0 +1,36 @@
+---
+
+- name: install necessary resources
+  apt:
+    name: "{{ item }}"
+    update_cache: yes
+  with_items:
+    - debhelper
+    - dkms
+    - bash-completion
+    - vim
+
+- name: install wanted kernels
+  apt:
+    name: "{{ item[0] }}-{{ item[1].version }}-{{ item[1].arch }}"
+  with_nested:
+    - [ 'linux-image', 'linux-headers' ]
+    - "{{ kernels }}"
+
+- name: download drivers
+  unarchive:
+    src: "{{ item.url }}"
+    dest: /usr/src
+    copy: no
+    creates: "/usr/src/{{ item.name }}-{{ item.version }}"
+  with_items: "{{ drivers }}"
+  when: item.custom_retrieval is not defined
+
+- name: custom retrieval of drivers
+  include_tasks: custom_retrieval/{{ item.custom_retrieval }}
+  vars:
+    name: "{{ item.name}}"
+    url: "{{ item.url }}"
+    version: "{{ item.version }}"
+  with_items: "{{ drivers }}"
+  when: item.custom_retrieval is defined

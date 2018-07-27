@@ -2,6 +2,9 @@
 
 - hosts: all
   tasks:
+    - name: include configuration for current OS
+      include_vars: "{{ ansible_distribution }}/{{ ansible_distribution_release }}/kernels.yml"
+
     - name: install necessary resources
       apt:
         name: "{{ item }}"

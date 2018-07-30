@@ -6,9 +6,13 @@
     update_cache: yes
   with_items:
     - debhelper
-    - dkms
     - bash-completion
     - vim
+
+- name: install dkms from backport
+  apt:
+    name: dkms
+    default_release: "{{ ansible_distribution_release }}-backports"
 
 - name: install wanted kernels
   apt:

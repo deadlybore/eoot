@@ -5,12 +5,21 @@
     path: "{{ output_directory }}/pkgs/{{ ansible_distribution }}/{{ ansible_distribution_release }}"
     state: directory
     recurse: true
+- name: retrieve generated deb
+  copy:
+    remote_src: true
+    src: "/var/lib/dkms/{{ item.name }}/{{ item.version }}/deb/{{ item.name | replace('_', '-') }}-dkms_{{ item.version }}_all.deb"
+    dest: "{{ output_directory }}/pkgs/{{ ansible_distribution }}/{{ ansible_distribution_release }}"
+    force: no
+  with_items:
+    - "{{ drivers }}"
 
 - name: retrieve generated bmdeb
   copy:
     remote_src: true
     src: "/var/lib/dkms/{{ item[0].name }}/{{ item[0].version }}/bmdeb/{{ item[0].name | replace('_', '-') }}-modules-{{ item[1].version }}-{{ item[1].arch }}_{{ item[0].version }}_{{ item[1].arch }}.deb"
     dest: "{{ output_directory }}/pkgs/{{ ansible_distribution }}/{{ ansible_distribution_release }}"
+    force: no
   with_nested:
     - "{{ drivers }}"
     - "{{ kernels }}"

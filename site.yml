@@ -4,12 +4,14 @@
   pre_tasks:
     - name: include configuration for current OS
       include_vars: "{{ ansible_distribution }}/{{ ansible_distribution_release }}/kernels.yml"
-
-    - include_role:
-        name: backports
-      when: use_backports is defined and use_backports == True
+      tags:
+        - setup
+        - dkms
+        - retrieval
+        - backports
 
   roles:
+    - backports
     - setup
     - dkms
     - retrieval

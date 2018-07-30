@@ -7,6 +7,12 @@
     force: no
   with_items: "{{ drivers }}"
 
+- name: use locale copy of dkms see https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=832558
+  copy:
+    src: dkms
+    dest: /usr/local/sbin/dkms
+    mode: 0755
+
 - name: dkms add
   shell: "dkms add -m {{ item[0].name }} -v {{ item[0].version }} -k {{ item[1].version }}-{{ item[1].arch }}"
   args:
@@ -21,7 +27,6 @@
     - "{{ drivers }}"
     - "{{ kernels }}"
 
-  # Not working for the moment due to a bug in dkms
 - name: dkms mkdeb
   shell: "dkms mkdeb -m {{ item[0].name }} -v {{ item[0].version }} -k {{ item[1].version }}-{{ item[1].arch }}"
   with_nested:

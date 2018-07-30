@@ -12,7 +12,7 @@ Vagrant.configure("2") do |config|
 
   # Every Vagrant development environment requires a box. You can search for
   # boxes at https://vagrantcloud.com/search.
-  if ENV['ENV'] == ''
+  if ENV['ENV'].nil?
     config.vm.box = "debian/stretch64"
   else
     config.vm.box = ENV['ENV']

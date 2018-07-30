@@ -1,0 +1,9 @@
+kernels:
+  - version: 3.16.0-4
+    arch: amd64
+  - version: 3.16.0-5
+    arch: amd64
+  - version: 3.16.0-6
+    arch: amd64
+  - version: 4.9.0-0.bpo.7
+    arch: amd64

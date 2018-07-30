@@ -2,9 +2,13 @@
 
 - name: make sure output directories exists
   file:
-    path: "{{ output_directory }}/pkgs/{{ ansible_distribution }}/{{ ansible_distribution_release }}"
+    path: "{{ output_directory }}/{{ item }}/{{ ansible_distribution }}/{{ ansible_distribution_release }}"
     state: directory
     recurse: true
+  with_items:
+    - 'pkgs'
+    - 'd-i'
+
 - name: retrieve generated deb
   copy:
     remote_src: true

@@ -1,5 +1,5 @@
 ---
 
-- include_tasks: retrieval.yml
+- import_tasks: retrieval.yml
   tags:
     - retrieval

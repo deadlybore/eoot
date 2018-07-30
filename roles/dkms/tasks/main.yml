@@ -1,5 +1,5 @@
 ---
 
-- include_tasks: dkms.yml
+- import_tasks: dkms.yml
   tags:
     - dkms

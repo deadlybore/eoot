@@ -5,3 +5,5 @@ kernels:
     arch: amd64
   - version: 4.9.0-7
     arch: amd64
+  - version: 4.9.0-8
+    arch: amd64
